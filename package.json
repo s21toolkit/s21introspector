@@ -1,0 +1,37 @@
+{
+  "name": "@s21toolkit/introspector",
+  "module": "src/index.ts",
+  "type": "module",
+  "bin": {
+    "s21introspector": "bin/main.ts",
+    "s21i": "bin/main.ts"
+  },
+  "scripts": {
+    "lint:eslint": "eslint src",
+    "lint:tsc": "tsc",
+    "lint": "bun run lint:tsc && bun run lint:eslint",
+    "lint:fix": "eslint src --fix"
+  },
+  "devDependencies": {
+    "@types/bun": "latest",
+    "@types/common-tags": "^1.8.4",
+    "@types/eslint": "^8.56.2",
+    "eslint-kit": "^10.9.0",
+    "eslint-plugin-no-relative-import-paths": "^1.5.3",
+    "eslint-plugin-require-node-import-prefix": "^0.0.2",
+    "prettier": "^3.2.4"
+  },
+  "peerDependencies": {
+    "typescript": "^5.3.0"
+  },
+  "dependencies": {
+    "@s21toolkit/client": "^0.8.0",
+    "acorn": "^8.11.3",
+    "acorn-walk": "^8.3.2",
+    "cmd-ts": "^0.13.0",
+    "common-tags": "^1.8.2",
+    "graphql": "^16.8.1",
+    "node-html-parser": "^6.1.12",
+    "ts-pattern": "^5.0.6"
+  }
+}
