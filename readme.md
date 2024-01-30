@@ -16,6 +16,7 @@ bun install --global github:s21toolkit/s21introspector
 Получение GraphQL схемы:
 
 ```sh
+s21 auth | s21introspector introspect
 s21introspector introspect --username login@student.21-school.ru --password p4s5w0rd
 s21introspector introspect --username login@student.21-school.ru --password p4s5w0rd --out-file schema.graphql
 ```
