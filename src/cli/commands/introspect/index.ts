@@ -34,16 +34,18 @@ export const introspectCommand = command({
 		username: option({
 			long: "username",
 			short: "u",
-			description: "Platform account username",
+			description:
+				"Platform account username (required if stdin is not provided)",
 			type: optional(string),
-			defaultValue: () => "",
+			defaultValue: () => undefined,
 		}),
 		password: option({
 			long: "password",
 			short: "p",
-			description: "Platform account password",
+			description:
+				"Platform account password (required if stdin is not provided)",
 			type: optional(string),
-			defaultValue: () => "",
+			defaultValue: () => undefined,
 		}),
 		outFile: option({
 			type: NewFile,
