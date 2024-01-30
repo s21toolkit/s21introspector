@@ -1,9 +1,15 @@
 import { fetchAccessToken } from "@s21toolkit/client"
-import { command, option, optional, string } from "cmd-ts"
+import { command, flag, option, optional, string } from "cmd-ts"
+import { source } from "common-tags"
+import { printSchema } from "graphql"
+import { resolve } from "node:path"
 import { createInterface } from "node:readline"
 import { NewFile } from "@/cli/arguments/types/NewFile"
-import { fetchGqlSchema } from "@/common/fetch-gql-schema"
+import { extractGqlLiterals } from "@/common/extract-gql-literals"
 import { fetchStaticProperties } from "@/common/fetch-static-properties"
+import { fetchTypeSchema } from "@/common/fetch-type-schema"
+import { walkScripts } from "@/common/walk-scripts"
+import { Constants } from "@/constants"
 
 function readLine() {
 	return new Promise<string>((resolve) =>
@@ -25,6 +31,34 @@ async function resolveAccessToken(username?: string, password?: string) {
 	}
 
 	throw new Error("Missing auth credentials")
+}
+
+async function fetchGraphqlLiterals() {
+	const gqlLiterals: string[] = []
+
+	await walkScripts(Constants.Platform.BASE_URL, (program) => {
+		gqlLiterals.push(...extractGqlLiterals(program))
+	})
+
+	return gqlLiterals
+}
+
+function resolveOutFile(
+	outFile: string,
+	staticProperties: Map<string, string>,
+) {
+	const resolvedOutFile = outFile.replaceAll(
+		/{(?<placeholder>[\w\d_$-]+)}/g,
+		(_match, placeholder) => {
+			return staticProperties.get(placeholder) ?? ""
+		},
+	)
+
+	return resolve(resolvedOutFile)
+}
+
+function printGqlLiterals(literals: string[]) {
+	return literals.reduce((a, b) => `${a.trim()}\n\n${b.trim()}`, "")
 }
 
 export const introspectCommand = command({
@@ -53,25 +87,34 @@ export const introspectCommand = command({
 			short: "o",
 			description:
 				"Output schema file (supports {substitutions} for static properties)",
-			defaultValue: () => "schema_{PRODUCT_VERSION}.graphql",
+			defaultValue: () => "schema_{PRODUCT_VERSION}.gql",
+		}),
+		typesOnly: flag({
+			long: "types-only",
+			short: "t",
+			description: "Only fetch types (and not queries)",
+			defaultValue: () => false,
 		}),
 	},
 	async handler(argv) {
-		const { username, password, outFile } = argv
+		const { username, password, outFile, typesOnly } = argv
 
-		const token = await resolveAccessToken(username, password)
+		const accessToken = await resolveAccessToken(username, password)
 
-		const [schema, staticProperties] = await Promise.all([
-			fetchGqlSchema(token),
+		const [typeSchema, staticProperties] = await Promise.all([
+			fetchTypeSchema(accessToken),
 			fetchStaticProperties(),
 		])
 
-		const resolvedOutFile = outFile.replaceAll(
-			/{(?<placeholder>[\w\d_$-]+)}/g,
-			(_match, placeholder) => {
-				return staticProperties.get(placeholder) ?? ""
-			},
-		)
+		const gqlLiterals = typesOnly ? [] : await fetchGraphqlLiterals()
+
+		const resolvedOutFile = resolveOutFile(outFile, staticProperties)
+
+		const schema = source`
+			${printSchema(typeSchema)}
+
+			${printGqlLiterals(gqlLiterals)}
+		`.trim()
 
 		await Bun.write(resolvedOutFile, schema)
 	},
