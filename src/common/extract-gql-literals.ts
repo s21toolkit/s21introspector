@@ -13,6 +13,12 @@ export function extractGqlLiterals(program: Node) {
 					value: P.string.minLength(1).select("value"),
 				},
 				({ value }) => {
+					const trimmedValue = value.trim()
+
+					if (trimmedValue.startsWith("{")) {
+						return
+					}
+
 					try {
 						parseGQL(value)
 
