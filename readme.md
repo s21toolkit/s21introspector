@@ -33,3 +33,12 @@ s21introspector static --select PRODUCT_VERSION --no-name
 ```
 
 > См. `s21introspector static --help`
+
+Получение исходного кода платформы:
+
+```sh
+s21introspector sources
+s21introspector sources --out-dir edu_src
+```
+
+> См. `s21introspector sources --help`
