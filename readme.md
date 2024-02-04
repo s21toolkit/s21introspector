@@ -1,4 +1,4 @@
-# s21introspector
+# s21i
 
 Утилита для интроспекции схемы GQL API платформы edu.21-school.ru.
 
@@ -13,33 +13,35 @@ bun install --global github:s21toolkit/s21introspector
 
 ## Использование
 
+> `s21i` - псевдоним для `s21introspector`
+
 Получение GraphQL схемы:
 
 ```sh
-s21introspector introspect --token MyAccessToken
-s21introspector introspect $(s21introspector auth login@student.21-school.ru p4s5w0rd)
-s21introspector introspect $(s21introspector auth login@student.21-school.ru p4s5w0rd) --out-file schema.graphql
-s21introspector introspect $(s21 auth | s21introspector _) # Авторизация через s21cli
+s21i introspect --token MyAccessToken
+s21i introspect $(s21i auth login@student.21-school.ru p4s5w0rd)
+s21i introspect $(s21i auth login@student.21-school.ru p4s5w0rd) --out-file schema.graphql
+s21i introspect $(s21 auth | s21i _) # Авторизация через s21cli
 ```
 
 Поддерживается подстановка статических свойств в `out-file`, например `schema_{PRODUCT_VERSION}.graphql` (по умолчанию).
 
-> См. `s21introspector introspect --help`
+> См. `s21i introspect --help`
 
 Получение статических свойств платформы:
 
 ```sh
-s21introspector static
-s21introspector static --select PRODUCT_VERSION --no-name
+s21i static
+s21i static --select PRODUCT_VERSION --no-name
 ```
 
-> См. `s21introspector static --help`
+> См. `s21i static --help`
 
 Получение исходного кода платформы:
 
 ```sh
-s21introspector sources
-s21introspector sources --out-dir edu_src
+s21i sources
+s21i sources --out-dir edu_src
 ```
 
-> См. `s21introspector sources --help`
+> См. `s21i sources --help`
