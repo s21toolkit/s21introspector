@@ -40,10 +40,16 @@ function extractImports(program: Node) {
 	return importSources
 }
 
+export type DocumentLoader = (url: string) => Promise<string>
+
 export type ScriptTraversalOptions = {
 	parserOptions: ParserOptions
 	visitedSources: Set<string>
+	fetchText: DocumentLoader
 }
+
+export const fetchText: DocumentLoader = (url) =>
+	fetch(url).then((response) => response.text())
 
 export const DEFAULT_SCRIPT_TRAVERSAL_OPTIONS = {
 	parserOptions: {
@@ -51,12 +57,14 @@ export const DEFAULT_SCRIPT_TRAVERSAL_OPTIONS = {
 		sourceType: "module",
 	},
 	visitedSources: new Set(),
+	fetchText,
 } satisfies ScriptTraversalOptions
 
 function resolveTraversalOptions(
 	partialOptions: Partial<ScriptTraversalOptions>,
 ): ScriptTraversalOptions {
 	return {
+		...DEFAULT_SCRIPT_TRAVERSAL_OPTIONS,
 		parserOptions: {
 			...DEFAULT_SCRIPT_TRAVERSAL_OPTIONS.parserOptions,
 			...(partialOptions.parserOptions ?? {}),
@@ -75,9 +83,7 @@ export async function walkScriptsFromWebpage(
 ) {
 	const options = resolveTraversalOptions(partialTraversalOptions)
 
-	const webpageResponse = await fetch(webpageUrl)
-
-	const webpageText = await webpageResponse.text()
+	const webpageText = await options.fetchText(webpageUrl)
 
 	const document = parseHtmlDocument(webpageText)
 
@@ -129,13 +135,13 @@ export async function walkScriptsFromWebpage(
 }
 
 export async function walkScriptsFromScript(
-	rootSource: string,
+	scriptUrl: string,
 	callback: (program: Node, text: string, source: string) => void,
 	partialTraversalOptions: Partial<ScriptTraversalOptions> = {},
 ) {
 	const options = resolveTraversalOptions(partialTraversalOptions)
 
-	const scriptQueue: string[] = [rootSource]
+	const scriptQueue: string[] = [scriptUrl]
 
 	const visitedSources = new Set(options.visitedSources)
 
@@ -147,9 +153,7 @@ export async function walkScriptsFromScript(
 		}
 
 		try {
-			const scriptResponse = await fetch(source)
-
-			const scriptText = await scriptResponse.text()
+			const scriptText = await options.fetchText(source)
 
 			const program = parseProgram(scriptText, options.parserOptions)
 
