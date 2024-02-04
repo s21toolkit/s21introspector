@@ -1,37 +1,14 @@
-import { fetchAccessToken } from "@s21toolkit/client"
-import { command, flag, option, optional, string } from "cmd-ts"
+import { command, flag, option } from "cmd-ts"
 import { source } from "common-tags"
 import { printSchema } from "graphql"
 import { resolve } from "node:path"
-import { createInterface } from "node:readline"
-import { NewFile } from "@/cli/arguments/types/NewFile"
+import { PLATFORM_TOKEN } from "@/cli/arguments/platform-token"
+import { NewFile } from "@/cli/arguments/types/new-file"
 import { extractGqlLiterals } from "@/common/extract-gql-literals"
 import { fetchStaticProperties } from "@/common/fetch-static-properties"
 import { fetchTypeSchema } from "@/common/fetch-type-schema"
 import { walkScriptsFromWebpage } from "@/common/walk-scripts"
 import { Constants } from "@/constants"
-
-function readLine() {
-	return new Promise<string>((resolve) =>
-		createInterface(process.stdin).on("line", (line) => resolve(line)),
-	)
-}
-
-async function resolveAccessToken(username?: string, password?: string) {
-	if (!username && !password && !process.stdin.isTTY) {
-		const input = await readLine()
-
-		return input.split(" ")[1]!
-	}
-
-	if (username && password) {
-		const token = await fetchAccessToken(username, password)
-
-		return token.accessToken
-	}
-
-	throw new Error("Missing auth credentials")
-}
 
 async function fetchGraphqlLiterals() {
 	const gqlLiterals: string[] = []
@@ -65,22 +42,7 @@ export const introspectCommand = command({
 	name: "introspect",
 	description: "Fetches GQL schema (requires authorization)",
 	args: {
-		username: option({
-			long: "username",
-			short: "u",
-			description:
-				"Platform account username (required if stdin is not provided)",
-			type: optional(string),
-			defaultValue: () => undefined,
-		}),
-		password: option({
-			long: "password",
-			short: "p",
-			description:
-				"Platform account password (required if stdin is not provided)",
-			type: optional(string),
-			defaultValue: () => undefined,
-		}),
+		...PLATFORM_TOKEN,
 		outFile: option({
 			type: NewFile,
 			long: "out-file",
@@ -97,9 +59,7 @@ export const introspectCommand = command({
 		}),
 	},
 	async handler(argv) {
-		const { username, password, outFile, typesOnly } = argv
-
-		const accessToken = await resolveAccessToken(username, password)
+		const { accessToken, outFile, typesOnly } = argv
 
 		const [typeSchema, staticProperties] = await Promise.all([
 			fetchTypeSchema(accessToken),

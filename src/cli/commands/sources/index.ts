@@ -1,7 +1,7 @@
 import { command, option } from "cmd-ts"
 import { createHash } from "node:crypto"
 import { join } from "node:path"
-import { NewFile } from "@/cli/arguments/types/NewFile"
+import { NewFile } from "@/cli/arguments/types/new-file"
 import { walkScriptsFromWebpage } from "@/common/walk-scripts"
 import { Constants } from "@/constants"
 
