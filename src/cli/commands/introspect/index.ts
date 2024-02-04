@@ -8,7 +8,7 @@ import { NewFile } from "@/cli/arguments/types/NewFile"
 import { extractGqlLiterals } from "@/common/extract-gql-literals"
 import { fetchStaticProperties } from "@/common/fetch-static-properties"
 import { fetchTypeSchema } from "@/common/fetch-type-schema"
-import { walkScripts } from "@/common/walk-scripts"
+import { walkScriptsFromWebpage } from "@/common/walk-scripts"
 import { Constants } from "@/constants"
 
 function readLine() {
@@ -36,7 +36,7 @@ async function resolveAccessToken(username?: string, password?: string) {
 async function fetchGraphqlLiterals() {
 	const gqlLiterals: string[] = []
 
-	await walkScripts(Constants.Platform.BASE_URL, (program) => {
+	await walkScriptsFromWebpage(Constants.Platform.BASE_URL, (program) => {
 		gqlLiterals.push(...extractGqlLiterals(program))
 	})
 

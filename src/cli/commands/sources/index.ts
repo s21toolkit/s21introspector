@@ -2,7 +2,7 @@ import { command, option } from "cmd-ts"
 import { createHash } from "node:crypto"
 import { join } from "node:path"
 import { NewFile } from "@/cli/arguments/types/NewFile"
-import { walkScripts } from "@/common/walk-scripts"
+import { walkScriptsFromWebpage } from "@/common/walk-scripts"
 import { Constants } from "@/constants"
 
 function createRootScriptFilename(text: string) {
@@ -28,7 +28,7 @@ export const sourcesCommand = command({
 
 		const writePromises: Promise<unknown>[] = []
 
-		await walkScripts(
+		await walkScriptsFromWebpage(
 			Constants.Platform.BASE_URL,
 			(_program, text, source) => {
 				const url = new URL(source)

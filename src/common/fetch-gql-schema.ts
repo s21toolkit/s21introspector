@@ -3,12 +3,12 @@ import { printSchema } from "graphql"
 import { Constants } from "@/constants"
 import { extractGqlLiterals } from "./extract-gql-literals"
 import { fetchTypeSchema } from "./fetch-type-schema"
-import { walkScripts } from "./walk-scripts"
+import { walkScriptsFromWebpage } from "./walk-scripts"
 
 export async function fetchGqlSchema(accessToken: string) {
 	const gqlLiterals: string[] = []
 
-	const walkScriptsPromise = walkScripts(
+	const walkScriptsPromise = walkScriptsFromWebpage(
 		Constants.Platform.BASE_URL,
 		(program) => {
 			gqlLiterals.push(...extractGqlLiterals(program))
