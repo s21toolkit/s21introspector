@@ -16,9 +16,10 @@ bun install --global github:s21toolkit/s21introspector
 Получение GraphQL схемы:
 
 ```sh
-s21 auth | s21introspector introspect
-s21introspector introspect --username login@student.21-school.ru --password p4s5w0rd
-s21introspector introspect --username login@student.21-school.ru --password p4s5w0rd --out-file schema.graphql
+s21introspector introspect --token MyAccessToken
+s21introspector introspect $(s21introspector auth login@student.21-school.ru p4s5w0rd)
+s21introspector introspect $(s21introspector auth login@student.21-school.ru p4s5w0rd) --out-file schema.graphql
+s21introspector introspect $(s21 auth | s21introspector _) # Авторизация через s21cli
 ```
 
 Поддерживается подстановка статических свойств в `out-file`, например `schema_{PRODUCT_VERSION}.graphql` (по умолчанию).
