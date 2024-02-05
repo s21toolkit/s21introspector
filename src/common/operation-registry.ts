@@ -81,7 +81,7 @@ export class OperationRegistry {
 	*getValidOperations(allowFragmentDuplication = true) {
 		const yieldedFragments = new Set<string>()
 
-		for (const [_name, operation] of this.#operations) {
+		for (const [name, operation] of this.#operations) {
 			let fragmentReferences = Array.from(operation.fragmentReferences)
 
 			if (!allowFragmentDuplication) {
@@ -111,7 +111,7 @@ export class OperationRegistry {
 				yieldedFragments.add(fragment)
 			}
 
-			yield node
+			yield { name, node }
 		}
 	}
 }
