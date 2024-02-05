@@ -146,9 +146,16 @@ export const introspectCommand = command({
 			displayName: "har file",
 			type: optional(HarFile),
 		}),
+		splitOperations: flag({
+			short: "s",
+			long: "split-operations",
+			description:
+				"Put operations (queries, mutations, etc.) into separate files, `out-file` becomes output directory",
+			defaultValue: () => false,
+		}),
 	},
 	async handler(argv) {
-		const { accessToken, outFile, typesOnly, har } = argv
+		const { accessToken, outFile, typesOnly, splitOperations, har } = argv
 
 		console.log("Fetching schema")
 
@@ -159,21 +166,47 @@ export const introspectCommand = command({
 
 		const resolvedOutFile = resolveOutFile(outFile, staticProperties)
 
+		if (splitOperations) {
+			if (typesOnly) {
+				console.error("`types-only` is not allowed with `split-operations`")
+				process.exit(1)
+			}
+
+			const schemaFile = resolve(resolvedOutFile, "./schema.gql")
+			const operationDirectory = resolve(resolvedOutFile, "./operations")
+
+			const schema = printSchema(typeSchema).trim()
+			const operations = await fetchGqlOperations(har)
+
+			await Bun.write(schemaFile, schema)
+
+			for (const operation of operations.getValidOperations()) {
+				const operationFile = resolve(
+					operationDirectory,
+					`${operation.name}.gql`,
+				)
+
+				await Bun.write(operationFile, printAst(operation.node).trim())
+			}
+
+			return
+		}
+
 		let schema
 
 		if (typesOnly) {
 			schema = printSchema(typeSchema).trim()
 		} else {
-			const gqlOperations = await fetchGqlOperations(har)
+			const operations = await fetchGqlOperations(har)
 
 			const validOperationDocuments = Array.from(
-				gqlOperations.getValidOperations(false),
+				operations.getValidOperations(),
 			)
 
 			schema = source`
 				${printSchema(typeSchema)}
 
-				${printGqlOperations(validOperationDocuments)}
+				${printGqlOperations(validOperationDocuments.map(({ node }) => node))}
 			`.trim()
 		}
 
