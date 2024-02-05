@@ -129,7 +129,7 @@ export const introspectCommand = command({
 		}),
 		typesOnly: flag({
 			long: "types-only",
-			short: "t",
+			short: "s",
 			description: "Only fetch types (and not queries)",
 			defaultValue: () => false,
 		}),
