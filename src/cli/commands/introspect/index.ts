@@ -1,7 +1,7 @@
 import { Node } from "acorn"
 import { command, flag, option, optional, positional } from "cmd-ts"
 import { source } from "common-tags"
-import { printSchema } from "graphql"
+import { DocumentNode, print as printAst, printSchema } from "graphql"
 import { Har } from "har-format"
 import { resolve } from "node:path"
 import { PLATFORM_TOKEN } from "@/cli/arguments/platform-token"
@@ -10,6 +10,7 @@ import { NewFile } from "@/cli/arguments/types/new-file"
 import { extractGqlLiterals } from "@/common/extract-gql-literals"
 import { fetchStaticProperties } from "@/common/fetch-static-properties"
 import { fetchTypeSchema } from "@/common/fetch-type-schema"
+import { OperationRegistry } from "@/common/operation-registry"
 import {
 	fetchText,
 	walkScriptsFromScript,
@@ -26,8 +27,8 @@ function getHarTextEntries(har: Har, mimeType: string) {
 	)
 }
 
-async function fetchGqlLiterals(har?: Har) {
-	const gqlLiterals: string[] = []
+async function fetchGqlOperations(har?: Har) {
+	const operationRegistry = new OperationRegistry()
 
 	const loadedDocuments = har
 		? getHarTextEntries(har, "html")
@@ -68,7 +69,11 @@ async function fetchGqlLiterals(har?: Har) {
 			loadedScripts.has(source) ? "-> Loaded from HAR" : "",
 		)
 
-		gqlLiterals.push(...extractGqlLiterals(program))
+		const literals = extractGqlLiterals(program)
+
+		for (const literal of literals) {
+			operationRegistry.addLiteral(literal)
+		}
 	}
 
 	for (const url of documentUrls) {
@@ -93,7 +98,7 @@ async function fetchGqlLiterals(har?: Har) {
 		}
 	}
 
-	return gqlLiterals
+	return operationRegistry
 }
 
 function resolveOutFile(
@@ -110,8 +115,11 @@ function resolveOutFile(
 	return resolve(resolvedOutFile)
 }
 
-function printGqlLiterals(literals: string[]) {
-	return literals.reduce((a, b) => `${a.trim()}\n\n${b.trim()}`, "")
+function printGqlOperations(literals: DocumentNode[]) {
+	return literals.reduce(
+		(result, node) => `${result}\n\n${printAst(node)}`,
+		"",
+	)
 }
 
 export const introspectCommand = command({
@@ -149,15 +157,25 @@ export const introspectCommand = command({
 			fetchStaticProperties(),
 		])
 
-		const gqlLiterals = typesOnly ? [] : await fetchGqlLiterals(har)
-
 		const resolvedOutFile = resolveOutFile(outFile, staticProperties)
 
-		const schema = source`
-			${printSchema(typeSchema)}
+		let schema
 
-			${printGqlLiterals(gqlLiterals)}
-		`.trim()
+		if (typesOnly) {
+			schema = printSchema(typeSchema).trim()
+		} else {
+			const gqlOperations = await fetchGqlOperations(har)
+
+			const validOperationDocuments = Array.from(
+				gqlOperations.getValidOperations(false),
+			)
+
+			schema = source`
+				${printSchema(typeSchema)}
+
+				${printGqlOperations(validOperationDocuments)}
+			`.trim()
+		}
 
 		await Bun.write(resolvedOutFile, schema)
 	},
