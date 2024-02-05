@@ -78,9 +78,18 @@ export class OperationRegistry {
 		return true
 	}
 
-	*getValidOperations() {
+	*getValidOperations(allowFragmentDuplication = true) {
+		const yieldedFragments = new Set<string>()
+
 		for (const [_name, operation] of this.#operations) {
-			const fragmentReferences = Array.from(operation.fragmentReferences)
+			let fragmentReferences = Array.from(operation.fragmentReferences)
+
+			if (!allowFragmentDuplication) {
+				fragmentReferences = fragmentReferences.filter((fragment) =>
+					yieldedFragments.has(fragment),
+				)
+			}
+
 			const hasAllFragments = fragmentReferences.every((fragment) =>
 				this.#fragments.has(fragment),
 			)
@@ -96,6 +105,10 @@ export class OperationRegistry {
 			const node: DocumentNode = {
 				kind: Kind.DOCUMENT,
 				definitions: [...fragmentDefinitions, operation.definition],
+			}
+
+			for (const fragment of fragmentReferences) {
+				yieldedFragments.add(fragment)
 			}
 
 			yield node
