@@ -40,6 +40,8 @@ export const sourcesCommand = command({
 			const filename =
 				url.pathname === "/" ? createRootScriptFilename(text) : url.pathname
 
+			console.log(`Saving: ${source} -> ${join(".", filename)}`)
+
 			const writePromise = Bun.write(join(outDir, filename), text)
 
 			writePromises.push(writePromise)
