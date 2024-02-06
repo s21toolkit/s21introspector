@@ -10,13 +10,13 @@ import { NewFile } from "@/cli/arguments/types/new-file"
 import { extractGqlLiterals } from "@/common/extract-gql-literals"
 import { fetchStaticProperties } from "@/common/fetch-static-properties"
 import { fetchTypeSchema } from "@/common/fetch-type-schema"
-import { OperationRegistry } from "@/common/operation-registry"
 import {
 	fetchText,
 	walkScriptsFromScript,
 	walkScriptsFromWebpage,
 } from "@/common/walk-scripts"
 import { Constants } from "@/constants"
+import { OperationRegistry } from "./operation-registry"
 
 function getHarTextEntries(har: Har, mimeType: string) {
 	return new Map(
@@ -147,7 +147,7 @@ export const introspectCommand = command({
 			type: optional(HarFile),
 		}),
 		splitOperations: flag({
-			short: "s",
+			short: "p",
 			long: "split-operations",
 			description:
 				"Put operations (queries, mutations, etc.) into separate files, `out-file` becomes output directory",
@@ -180,7 +180,7 @@ export const introspectCommand = command({
 
 			await Bun.write(schemaFile, schema)
 
-			for (const operation of operations.getValidOperations()) {
+			for (const operation of operations.getValidOperations(true)) {
 				const operationFile = resolve(
 					operationDirectory,
 					`${operation.name}.gql`,
@@ -200,7 +200,7 @@ export const introspectCommand = command({
 			const operations = await fetchGqlOperations(har)
 
 			const validOperationDocuments = Array.from(
-				operations.getValidOperations(),
+				operations.getValidOperations(false),
 			)
 
 			schema = source`
