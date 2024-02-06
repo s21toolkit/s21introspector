@@ -42,6 +42,12 @@ export class OperationRegistry {
 	#operations = new Map<string, DefinitionRecord<OperationDefinitionNode>>()
 
 	#addFragmentDefinition(definition: FragmentDefinitionNode) {
+		if (this.#fragments.has(definition.name.value)) {
+			console.log(`Fragment found: [duplicate] ${definition.name.value}`)
+
+			return
+		}
+
 		console.log(`Fragment found: ${definition.name.value}`)
 
 		const fragmentReferences = extractDirectFragmentReferences(definition)
@@ -66,6 +72,12 @@ export class OperationRegistry {
 			.otherwise((node) =>
 				createHash("md5").update(JSON.stringify(node)).digest("hex"),
 			)
+
+		if (this.#operations.has(name)) {
+			console.log(`Operation found: [duplicate] ${name}`)
+
+			return
+		}
 
 		console.log(`Operation found: ${name}`)
 
