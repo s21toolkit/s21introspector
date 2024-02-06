@@ -10,6 +10,8 @@ import {
 import { createHash } from "node:crypto"
 import { match, P } from "ts-pattern"
 
+// TODO: Refactor this
+
 type DefinitionRecord<TDefinition extends DefinitionNode> = {
 	definition: TDefinition
 	fragmentReferences: Set<string>

@@ -166,6 +166,8 @@ export const introspectCommand = command({
 
 		const resolvedOutFile = resolveOutFile(outFile, staticProperties)
 
+		// TODO: Refactor this
+
 		if (splitOperations) {
 			if (typesOnly) {
 				console.error("`types-only` is not allowed with `split-operations`")
