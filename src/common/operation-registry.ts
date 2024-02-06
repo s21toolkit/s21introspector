@@ -1,4 +1,5 @@
 import {
+	DefinitionNode,
 	DocumentNode,
 	FragmentDefinitionNode,
 	Kind,
@@ -9,17 +10,44 @@ import {
 import { createHash } from "node:crypto"
 import { match, P } from "ts-pattern"
 
-type Operation = {
-	definition: OperationDefinitionNode
+type DefinitionRecord<TDefinition extends DefinitionNode> = {
+	definition: TDefinition
 	fragmentReferences: Set<string>
 }
 
+function extractDirectFragmentReferences(definition: DefinitionNode) {
+	const fragmentReferences = new Set<string>()
+
+	walk(definition, {
+		FragmentSpread: (node) =>
+			match(node).with(
+				{
+					kind: Kind.FRAGMENT_SPREAD,
+					name: {
+						kind: Kind.NAME,
+						value: P.string.select("name"),
+					},
+				},
+				({ name }) => fragmentReferences.add(name),
+			),
+	})
+
+	return fragmentReferences
+}
+
 export class OperationRegistry {
-	#fragments = new Map<string, FragmentDefinitionNode>()
-	#operations = new Map<string, Operation>()
+	#fragments = new Map<string, DefinitionRecord<FragmentDefinitionNode>>()
+	#operations = new Map<string, DefinitionRecord<OperationDefinitionNode>>()
 
 	#addFragmentDefinition(definition: FragmentDefinitionNode) {
-		this.#fragments.set(definition.name.value, definition)
+		console.log(`Fragment found: ${definition.name.value}`)
+
+		const fragmentReferences = extractDirectFragmentReferences(definition)
+
+		this.#fragments.set(definition.name.value, {
+			definition,
+			fragmentReferences,
+		})
 	}
 
 	#addOperationDefinition(definition: OperationDefinitionNode) {
@@ -37,23 +65,9 @@ export class OperationRegistry {
 				createHash("md5").update(JSON.stringify(node)).digest("hex"),
 			)
 
-		const fragmentReferences = new Set<string>()
+		console.log(`Operation found: ${name}`)
 
-		walk(definition, {
-			FragmentSpread: (node) =>
-				match(node).with(
-					{
-						kind: Kind.FRAGMENT_SPREAD,
-						name: {
-							kind: Kind.NAME,
-							value: P.string.select("name"),
-						},
-					},
-					({ name }) => {
-						fragmentReferences.add(name)
-					},
-				),
-		})
+		const fragmentReferences = extractDirectFragmentReferences(definition)
 
 		this.#operations.set(name, {
 			definition,
@@ -67,6 +81,7 @@ export class OperationRegistry {
 		try {
 			node = parse(literal)
 		} catch {
+			console.log(`Literal discarded: ${literal}`)
 			return false
 		}
 
@@ -78,15 +93,49 @@ export class OperationRegistry {
 		return true
 	}
 
+	#resolveFragmentReferences(record: DefinitionRecord<DefinitionNode>) {
+		const fragmentQueue = Array.from(record.fragmentReferences)
+		const resolvedFragments = new Set<string>()
+
+		while (fragmentQueue.length > 0) {
+			const fragment = fragmentQueue.shift()!
+
+			if (resolvedFragments.has(fragment)) {
+				continue
+			}
+
+			const directReferences =
+				this.#fragments.get(fragment)!.fragmentReferences
+
+			fragmentQueue.push(...directReferences)
+
+			resolvedFragments.add(fragment)
+		}
+
+		return resolvedFragments
+	}
+
 	*getValidOperations(allowFragmentDuplication = true) {
 		const yieldedFragments = new Set<string>()
 
 		for (const [name, operation] of this.#operations) {
-			let fragmentReferences = Array.from(operation.fragmentReferences)
+			let fragmentReferences = Array.from(
+				this.#resolveFragmentReferences(operation),
+			)
 
 			if (!allowFragmentDuplication) {
-				fragmentReferences = fragmentReferences.filter((fragment) =>
+				const duplicatedFragments = fragmentReferences.filter((fragment) =>
 					yieldedFragments.has(fragment),
+				)
+
+				if (duplicatedFragments.length > 0) {
+					console.log(
+						`Discarded duplicated fragments: ${duplicatedFragments.join(", ")}`,
+					)
+				}
+
+				fragmentReferences = fragmentReferences.filter(
+					(fragment) => !yieldedFragments.has(fragment),
 				)
 			}
 
@@ -95,12 +144,16 @@ export class OperationRegistry {
 			)
 
 			if (!hasAllFragments) {
+				console.log(
+					`Invalid operation: ${name} ${fragmentReferences.length > 0 ? `<- [present] ${fragmentReferences.filter((fragment) => this.#fragments.has(fragment)).join(", ")} [missing] ${fragmentReferences.filter((fragment) => !this.#fragments.has(fragment)).join(", ")}` : ""}`,
+				)
+
 				continue
 			}
 
-			const fragmentDefinitions = fragmentReferences.map(
-				(fragment) => this.#fragments.get(fragment)!,
-			)
+			const fragmentDefinitions = fragmentReferences
+				.map((fragment) => this.#fragments.get(fragment)!.definition)
+				.toReversed()
 
 			const node: DocumentNode = {
 				kind: Kind.DOCUMENT,
@@ -110,6 +163,10 @@ export class OperationRegistry {
 			for (const fragment of fragmentReferences) {
 				yieldedFragments.add(fragment)
 			}
+
+			console.log(
+				`Extracting operation: ${name} ${fragmentReferences.length > 0 ? `<- ${fragmentReferences.join(", ")}` : ""}`,
+			)
 
 			yield { name, node }
 		}
