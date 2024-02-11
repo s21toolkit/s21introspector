@@ -8,6 +8,8 @@ export namespace Constants {
 
 		export namespace Admin {
 			export const BASE_URL = "https://edu-admin.21-school.ru"
+
+			export const GQL_URL = `${BASE_URL}/services/graphql`
 		}
 	}
 }
