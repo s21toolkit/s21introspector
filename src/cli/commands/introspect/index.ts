@@ -125,6 +125,7 @@ function printGqlOperations(literals: DocumentNode[]) {
 
 export const introspectCommand = command({
 	name: "introspect",
+	aliases: ["@"],
 	description: "Fetches GQL schema (requires authorization)",
 	args: {
 		...PLATFORM_TOKEN,
