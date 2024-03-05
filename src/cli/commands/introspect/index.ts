@@ -1,5 +1,13 @@
 import { Node } from "acorn"
-import { command, flag, option, optional, positional } from "cmd-ts"
+import {
+	boolean,
+	command,
+	flag,
+	option,
+	optional,
+	positional,
+	string,
+} from "cmd-ts"
 import { source } from "common-tags"
 import { DocumentNode, print as printAst, printSchema } from "graphql"
 import { Har } from "har-format"
@@ -152,12 +160,44 @@ export const introspectCommand = command({
 			short: "p",
 			long: "split-operations",
 			description:
-				"Put operations (queries, mutations, etc.) into separate files, `out-file` becomes output directory",
+				"Put operations (queries, mutations, etc.) into one separate file, `out-file` becomes output directory",
 			defaultValue: () => false,
+		}),
+		deduplicateFragments: flag({
+			short: "d",
+			long: "deduplicate-fragments",
+			description:
+				"Remove duplicated fragments (by default disabled for `isolate-operations`, enabled otherwise)",
+			type: optional(boolean),
+			defaultValue: () => undefined,
+		}),
+		isolateOperations: flag({
+			short: "i",
+			long: "isolate-operations",
+			description:
+				"Put each operation (query, mutation, etc.) into a separate file, `out-file` becomes output directory",
+			defaultValue: () => false,
+		}),
+		gqlFileExtension: option({
+			short: "e",
+			long: "gql-file-extension",
+			description:
+				"File extension for generated GQL files (used with `isolate-operations` and `split-operations`)",
+			type: optional(string),
+			defaultValue: () => undefined,
 		}),
 	},
 	async handler(argv) {
-		const { accessToken, outFile, typesOnly, splitOperations, har } = argv
+		const {
+			accessToken,
+			outFile,
+			typesOnly,
+			splitOperations,
+			isolateOperations,
+			har,
+		} = argv
+
+		const gqlFileExtension = argv.gqlFileExtension ?? "gql"
 
 		console.log("Fetching schema")
 
@@ -170,13 +210,27 @@ export const introspectCommand = command({
 
 		// TODO: Refactor this
 
-		if (splitOperations) {
+		if (splitOperations && isolateOperations) {
+			console.error(
+				"`isolate-operations` and `split-operations` are mutually exclusive",
+			)
+			process.exit(1)
+		}
+
+		if (isolateOperations) {
 			if (typesOnly) {
-				console.error("`types-only` is not allowed with `split-operations`")
+				console.error(
+					"`types-only` is not allowed with `isolate-operations`",
+				)
 				process.exit(1)
 			}
 
-			const schemaFile = resolve(resolvedOutFile, "./schema.gql")
+			const deduplicateFragments = argv.deduplicateFragments ?? false
+
+			const schemaFile = resolve(
+				resolvedOutFile,
+				`./schema.${gqlFileExtension}`,
+			)
 			const operationDirectory = resolve(resolvedOutFile, "./operations")
 
 			const schema = printSchema(typeSchema).trim()
@@ -184,10 +238,12 @@ export const introspectCommand = command({
 
 			await Bun.write(schemaFile, schema)
 
-			for (const operation of operations.getValidOperations(true)) {
+			for (const operation of operations.getValidOperations(
+				!deduplicateFragments,
+			)) {
 				const operationFile = resolve(
 					operationDirectory,
-					`${operation.name}.gql`,
+					`${operation.name}.${gqlFileExtension}`,
 				)
 
 				await Bun.write(operationFile, printAst(operation.node).trim())
@@ -196,15 +252,58 @@ export const introspectCommand = command({
 			return
 		}
 
+		if (splitOperations) {
+			if (typesOnly) {
+				console.error("`types-only` is not allowed with `split-operations`")
+				process.exit(1)
+			}
+
+			const deduplicateFragments = argv.deduplicateFragments ?? true
+
+			const schemaFile = resolve(
+				resolvedOutFile,
+				`./schema.${gqlFileExtension}`,
+			)
+			const operationsFile = resolve(
+				resolvedOutFile,
+				`./operations.${gqlFileExtension}`,
+			)
+
+			const schema = printSchema(typeSchema).trim()
+
+			const operations = await fetchGqlOperations(har)
+
+			const validOperationDocuments = Array.from(
+				operations.getValidOperations(!deduplicateFragments),
+			)
+
+			const operationSchema = printGqlOperations(
+				validOperationDocuments.map(({ node }) => node),
+			)
+
+			await Bun.write(schemaFile, schema)
+			await Bun.write(operationsFile, operationSchema)
+
+			return
+		}
+
+		if (argv.gqlFileExtension) {
+			console.warn(
+				"`gql-file-extension` is only supported with `isolate-operations` and `split-operations`. Specify output extension directly in `out-file`.",
+			)
+		}
+
 		let schema
 
 		if (typesOnly) {
 			schema = printSchema(typeSchema).trim()
 		} else {
+			const deduplicateFragments = argv.deduplicateFragments ?? true
+
 			const operations = await fetchGqlOperations(har)
 
 			const validOperationDocuments = Array.from(
-				operations.getValidOperations(false),
+				operations.getValidOperations(!deduplicateFragments),
 			)
 
 			schema = source`
