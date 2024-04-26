@@ -6,8 +6,6 @@
 
 > [!IMPORTANT]
 > Для работы требуется [Bun](https://bun.sh).
->
-> Так как Bun для Windows пока не готов, для использования на Windows не предназначено.
 
 ```sh
 bun install --global github:s21toolkit/s21introspector
