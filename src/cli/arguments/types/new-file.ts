@@ -1,6 +1,6 @@
-import { exists } from "fs/promises"
-import { extendType, string } from "cmd-ts"
+import { existsSync } from "node:fs"
 import { dirname, resolve } from "node:path"
+import { extendType, string } from "cmd-ts"
 
 export const NewFile = extendType(string, {
 	async from(value) {
@@ -8,7 +8,7 @@ export const NewFile = extendType(string, {
 
 		const directory = dirname(path)
 
-		if (!(await exists(directory))) {
+		if (!existsSync(directory)) {
 			throw new Error(`Directory \`${directory}\` does not exist`)
 		}
 

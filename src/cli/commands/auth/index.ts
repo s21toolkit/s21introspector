@@ -1,4 +1,4 @@
-import { fetchAccessToken } from "@s21toolkit/client"
+import { fetchAccessToken } from "@s21toolkit/auth"
 import { command, flag, positional } from "cmd-ts"
 
 export const authCommand = command({

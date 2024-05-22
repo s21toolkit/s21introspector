@@ -1,16 +1,3 @@
-import { Node } from "acorn"
-import {
-	boolean,
-	command,
-	flag,
-	option,
-	optional,
-	positional,
-	string,
-} from "cmd-ts"
-import { source } from "common-tags"
-import { DocumentNode, print as printAst, printSchema } from "graphql"
-import { Har } from "har-format"
 import { resolve } from "node:path"
 import { PLATFORM_TOKEN } from "@/cli/arguments/platform-token"
 import { HarFile } from "@/cli/arguments/types/har-file"
@@ -24,13 +11,26 @@ import {
 	walkScriptsFromWebpage,
 } from "@/common/walk-scripts"
 import { Constants } from "@/constants"
+import type { Node } from "acorn"
+import {
+	boolean,
+	command,
+	flag,
+	option,
+	optional,
+	positional,
+	string,
+} from "cmd-ts"
+import { source } from "common-tags"
+import { type DocumentNode, print as printAst, printSchema } from "graphql"
+import type { Har } from "har-format"
 import { OperationRegistry } from "./operation-registry"
 
 function getHarTextEntries(har: Har, mimeType: string) {
 	return new Map(
 		har.log.entries
-			// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
 			.filter((entry) => entry.response.content.mimeType?.includes(mimeType))
+			// biome-ignore lint/style/noNonNullAssertion: expected to be non-null
 			.map((entry) => [entry.request.url, entry.response.content.text!]),
 	)
 }
@@ -54,10 +54,12 @@ async function fetchGqlOperations(har?: Har) {
 
 	async function getOrFetchText(url: string) {
 		if (loadedDocuments.has(url)) {
+			// biome-ignore lint/style/noNonNullAssertion: has already been checked
 			return loadedDocuments.get(url)!
 		}
 
 		if (loadedScripts.has(url)) {
+			// biome-ignore lint/style/noNonNullAssertion: has already been checked
 			return loadedScripts.get(url)!
 		}
 
@@ -309,7 +311,9 @@ export const introspectCommand = command({
 			schema = source`
 				${printSchema(typeSchema)}
 
-				${printGqlOperations(validOperationDocuments.map(({ node }) => node))}
+				${printGqlOperations(
+					validOperationDocuments.map(({ node }) => node),
+				)}
 			`.trim()
 		}
 

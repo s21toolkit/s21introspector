@@ -1,14 +1,14 @@
+import { createHash } from "node:crypto"
 import {
-	DefinitionNode,
-	DocumentNode,
-	FragmentDefinitionNode,
+	type DefinitionNode,
+	type DocumentNode,
+	type FragmentDefinitionNode,
 	Kind,
-	OperationDefinitionNode,
+	type OperationDefinitionNode,
 	parse,
 	visit as walk,
 } from "graphql"
-import { createHash } from "node:crypto"
-import { match, P } from "ts-pattern"
+import { P, match } from "ts-pattern"
 
 // TODO: Refactor this
 
@@ -112,6 +112,7 @@ export class OperationRegistry {
 		const resolvedFragments = new Set<string>()
 
 		while (fragmentQueue.length > 0) {
+			// biome-ignore lint/style/noNonNullAssertion: length already checked
 			const fragment = fragmentQueue.shift()!
 
 			if (resolvedFragments.has(fragment)) {
@@ -119,6 +120,7 @@ export class OperationRegistry {
 			}
 
 			const directReferences =
+				// biome-ignore lint/style/noNonNullAssertion: expected to be non-null
 				this.#fragments.get(fragment)!.fragmentReferences
 
 			fragmentQueue.push(...directReferences)
@@ -144,7 +146,9 @@ export class OperationRegistry {
 
 				if (duplicatedFragments.length > 0) {
 					console.log(
-						`Discarded duplicated fragments: ${duplicatedFragments.join(", ")}`,
+						`Discarded duplicated fragments: ${duplicatedFragments.join(
+							", ",
+						)}`,
 					)
 				}
 
@@ -159,13 +163,22 @@ export class OperationRegistry {
 
 			if (!hasAllFragments) {
 				console.log(
-					`Invalid operation: ${name} ${fragmentReferences.length > 0 ? `<- [present] ${fragmentReferences.filter((fragment) => this.#fragments.has(fragment)).join(", ")} [missing] ${fragmentReferences.filter((fragment) => !this.#fragments.has(fragment)).join(", ")}` : ""}`,
+					`Invalid operation: ${name} ${
+						fragmentReferences.length > 0
+							? `<- [present] ${fragmentReferences
+									.filter((fragment) => this.#fragments.has(fragment))
+									.join(", ")} [missing] ${fragmentReferences
+									.filter((fragment) => !this.#fragments.has(fragment))
+									.join(", ")}`
+							: ""
+					}`,
 				)
 
 				continue
 			}
 
 			const fragmentDefinitions = fragmentReferences
+				// biome-ignore lint/style/noNonNullAssertion: expected to be non-null
 				.map((fragment) => this.#fragments.get(fragment)!.definition)
 				.toReversed()
 
@@ -179,7 +192,11 @@ export class OperationRegistry {
 			}
 
 			console.log(
-				`Extracting operation: ${name} ${fragmentReferences.length > 0 ? `<- ${fragmentReferences.join(", ")}` : ""}`,
+				`Extracting operation: ${name} ${
+					fragmentReferences.length > 0
+						? `<- ${fragmentReferences.join(", ")}`
+						: ""
+				}`,
 			)
 
 			yield { name, node }

@@ -1,5 +1,5 @@
-import { command } from "cmd-ts"
 import { createInterface } from "node:readline"
+import { command } from "cmd-ts"
 
 function readLine() {
 	return new Promise<string>((resolve) =>

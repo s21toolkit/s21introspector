@@ -1,7 +1,7 @@
-import { Node } from "acorn"
+import type { Node } from "acorn"
 import { simple as walkProgram } from "acorn-walk"
 import { parse as parseGQL } from "graphql"
-import { match, P } from "ts-pattern"
+import { P, match } from "ts-pattern"
 
 export function extractGqlLiterals(program: Node) {
 	const gqlLiterals: string[] = []

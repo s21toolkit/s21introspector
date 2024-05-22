@@ -1,7 +1,7 @@
+import { Constants } from "@/constants"
 import { parse } from "acorn"
 import { simple as walk } from "acorn-walk"
-import { match, P } from "ts-pattern"
-import { Constants } from "@/constants"
+import { P, match } from "ts-pattern"
 
 export async function fetchStaticProperties() {
 	const staticScriptResponse = await fetch(

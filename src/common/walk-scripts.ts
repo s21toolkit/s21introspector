@@ -1,7 +1,11 @@
-import { Node, Options as ParserOptions, parse as parseProgram } from "acorn"
+import {
+	type Node,
+	type Options as ParserOptions,
+	parse as parseProgram,
+} from "acorn"
 import { simple as walkProgram } from "acorn-walk"
 import { parse as parseHtmlDocument } from "node-html-parser"
-import { match, P } from "ts-pattern"
+import { P, match } from "ts-pattern"
 
 function resolveSource(base: string, url: string) {
 	return new URL(url, base).href
@@ -115,6 +119,7 @@ export async function walkScriptsFromWebpage(
 	const visitedSources = new Set(options.visitedSources)
 
 	while (scriptQueue.length > 0) {
+		// biome-ignore lint/style/noNonNullAssertion: length already checked
 		const source = scriptQueue.shift()!
 
 		if (visitedSources.has(source)) {
@@ -146,6 +151,7 @@ export async function walkScriptsFromScript(
 	const visitedSources = new Set(options.visitedSources)
 
 	while (scriptQueue.length > 0) {
+		// biome-ignore lint/style/noNonNullAssertion: length already checked
 		const source = scriptQueue.shift()!
 
 		if (visitedSources.has(source)) {
