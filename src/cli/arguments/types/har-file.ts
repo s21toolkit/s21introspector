@@ -1,10 +1,10 @@
 import { readFile } from "node:fs/promises"
 import { extname } from "node:path"
 import { extendType } from "cmd-ts"
-import { File } from "cmd-ts/batteries/fs"
+import cmdTsFs from "cmd-ts/dist/cjs/batteries/fs.js"
 import type { Har } from "har-format"
 
-export const HarFile = extendType(File, {
+export const HarFile = extendType(cmdTsFs.File, {
 	async from(path) {
 		const extension = extname(path)
 
