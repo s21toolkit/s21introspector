@@ -1,39 +1,11 @@
 {
+	"$schema": "https://json.schemastore.org/tsconfig",
+	"extends": ["@s21toolkit/shared/tsconfig/tsup.tsconfig.json"],
 	"compilerOptions": {
-		/* Language and Environment */
-		"target": "ESNext",
-		"lib": ["ESNext"],
-		"experimentalDecorators": true,
-		"emitDecoratorMetadata": true,
-		"jsx": "react-jsx",
-
-		/* Modules */
-		"module": "ESNext",
-		"moduleResolution": "Bundler",
-		"moduleDetection": "force",
-		"allowImportingTsExtensions": true,
 		"baseUrl": ".",
 		"paths": {
-			"@/*": ["src/*"],
-		},
-
-		/* Emit */
-		"noEmit": true,
-
-		/* Interop Constraints */
-		"esModuleInterop": true,
-		"forceConsistentCasingInFileNames": true,
-
-		/* Type Checking */
-		"strict": true,
-		"noImplicitThis": true,
-		"useUnknownInCatchVariables": true,
-		"alwaysStrict": true,
-		"noImplicitReturns": true,
-		"noImplicitOverride": true,
-
-		/* Completeness */
-		"skipLibCheck": true,
+			"@/*": ["src/*"]
+		}
 	},
-	"include": [".eslintrc.cjs", "src/**/*"]
+	"exclude": ["build"]
 }

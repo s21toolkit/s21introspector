@@ -1,37 +1,39 @@
 {
   "name": "@s21toolkit/introspector",
-  "module": "src/index.ts",
+  "description": "GQL Introspection CLI for edu.21-school.ru",
   "type": "module",
-  "bin": {
-    "s21introspector": "bin/main.ts",
-    "s21i": "bin/main.ts"
-  },
+  "bin": "build/main.js",
   "scripts": {
-    "lint:eslint": "eslint src",
     "lint:tsc": "tsc",
-    "lint": "bun run lint:tsc && bun run lint:eslint",
-    "lint:fix": "eslint src --fix"
+    "lint:biome": "biome check .",
+    "lint": "pnpm lint:biome && pnpm lint:tsc",
+    "fix:biome": "biome check --apply .",
+    "fix": "pnpm fix:biome",
+    "build:tsup": "tsup",
+    "build": "pnpm lint && pnpm build:tsup",
+    "postversion": "git push && git push --tags",
+    "release": "npm version -m 'chore(release): %s' --",
+    "prepublishOnly": "pnpm build"
   },
   "devDependencies": {
-    "@types/bun": "latest",
+    "@biomejs/biome": "^1.7.3",
+    "@s21toolkit/shared": "^1.2.1",
+    "@total-typescript/ts-reset": "^0.5.1",
     "@types/common-tags": "^1.8.4",
-    "@types/eslint": "^8.56.2",
-    "eslint-kit": "^10.9.0",
-    "eslint-plugin-no-relative-import-paths": "^1.5.3",
-    "eslint-plugin-require-node-import-prefix": "^0.0.2",
-    "prettier": "^3.2.4"
-  },
-  "peerDependencies": {
-    "typescript": "^5.3.0"
+    "@types/node": "^20.12.12",
+    "tsup": "^8.0.2",
+    "typescript": "^5.4.5"
   },
   "dependencies": {
-    "@s21toolkit/client": "^0.8.0",
+    "@s21toolkit/auth": "^1.0.0",
     "acorn": "^8.11.3",
     "acorn-walk": "^8.3.2",
     "cmd-ts": "^0.13.0",
     "common-tags": "^1.8.2",
     "graphql": "^16.8.1",
-    "node-html-parser": "^6.1.12",
-    "ts-pattern": "^5.0.6"
-  }
+    "node-html-parser": "^6.1.13",
+    "ts-pattern": "^5.1.1"
+  },
+  "private": false,
+  "license": "MIT"
 }
