@@ -5,6 +5,9 @@
   "bin": {
     "s21i": "build/main.js"
   },
+  "engines": {
+    "node": ">=20.0.0"
+  },
   "scripts": {
     "lint:tsc": "tsc",
     "lint:biome": "biome check .",
