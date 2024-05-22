@@ -1,4 +1,5 @@
 import { createHash } from "node:crypto"
+import { writeFile } from "node:fs/promises"
 import { join } from "node:path"
 import { NewFile } from "@/cli/arguments/types/new-file"
 import { walkScriptsFromWebpage } from "@/common/walk-scripts"
@@ -42,7 +43,7 @@ export const sourcesCommand = command({
 
 			console.log(`Saving: ${source} -> ${join(".", filename)}`)
 
-			const writePromise = Bun.write(join(outDir, filename), text)
+			const writePromise = writeFile(join(outDir, filename), text)
 
 			writePromises.push(writePromise)
 		})
