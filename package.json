@@ -2,7 +2,9 @@
   "name": "@s21toolkit/introspector",
   "description": "GQL Introspection CLI for edu.21-school.ru",
   "type": "module",
-  "bin": "build/main.js",
+  "bin": {
+    "s21i": "build/main.js"
+  },
   "scripts": {
     "lint:tsc": "tsc",
     "lint:biome": "biome check .",
