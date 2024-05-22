@@ -41,5 +41,6 @@
     "ts-pattern": "^5.1.1"
   },
   "private": false,
-  "license": "MIT"
+  "license": "MIT",
+  "version": "1.0.0"
 }
