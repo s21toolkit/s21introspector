@@ -1,4 +1,3 @@
-import { writeFile } from "node:fs/promises"
 import { resolve } from "node:path"
 import { PLATFORM_TOKEN } from "@/cli/arguments/platform-token"
 import { HarFile } from "@/cli/arguments/types/har-file"
@@ -23,6 +22,7 @@ import {
 	string,
 } from "cmd-ts"
 import { source } from "common-tags"
+import { outputFile } from "fs-extra"
 import { type DocumentNode, print as printAst, printSchema } from "graphql"
 import type { Har } from "har-format"
 import { OperationRegistry } from "./operation-registry"
@@ -239,7 +239,7 @@ export const introspectCommand = command({
 			const schema = printSchema(typeSchema).trim()
 			const operations = await fetchGqlOperations(har)
 
-			await writeFile(schemaFile, schema)
+			await outputFile(schemaFile, schema)
 
 			for (const operation of operations.getValidOperations(
 				!deduplicateFragments,
@@ -249,7 +249,7 @@ export const introspectCommand = command({
 					`${operation.name}.${gqlFileExtension}`,
 				)
 
-				await writeFile(operationFile, printAst(operation.node).trim())
+				await outputFile(operationFile, printAst(operation.node).trim())
 			}
 
 			return
@@ -284,8 +284,8 @@ export const introspectCommand = command({
 				validOperationDocuments.map(({ node }) => node),
 			)
 
-			await writeFile(schemaFile, schema)
-			await writeFile(operationsFile, operationSchema)
+			await outputFile(schemaFile, schema)
+			await outputFile(operationsFile, operationSchema)
 
 			return
 		}
@@ -318,6 +318,6 @@ export const introspectCommand = command({
 			`.trim()
 		}
 
-		await writeFile(resolvedOutFile, schema)
+		await outputFile(resolvedOutFile, schema)
 	},
 })

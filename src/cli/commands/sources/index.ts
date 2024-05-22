@@ -1,10 +1,10 @@
 import { createHash } from "node:crypto"
-import { writeFile } from "node:fs/promises"
 import { join } from "node:path"
 import { NewFile } from "@/cli/arguments/types/new-file"
 import { walkScriptsFromWebpage } from "@/common/walk-scripts"
 import { Constants } from "@/constants"
 import { command, option, optional, positional, string } from "cmd-ts"
+import { outputFile } from "fs-extra"
 
 function createRootScriptFilename(text: string) {
 	const hash = createHash("md5").update(text).digest("hex")
@@ -43,7 +43,7 @@ export const sourcesCommand = command({
 
 			console.log(`Saving: ${source} -> ${join(".", filename)}`)
 
-			const writePromise = writeFile(join(outDir, filename), text)
+			const writePromise = outputFile(join(outDir, filename), text)
 
 			writePromises.push(writePromise)
 		})

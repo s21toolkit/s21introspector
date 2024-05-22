@@ -25,6 +25,7 @@
     "@s21toolkit/shared": "^1.2.1",
     "@total-typescript/ts-reset": "^0.5.1",
     "@types/common-tags": "^1.8.4",
+    "@types/fs-extra": "^11.0.4",
     "@types/har-format": "^1.2.15",
     "@types/node": "^20.12.12",
     "tsup": "^8.0.2",
@@ -36,6 +37,7 @@
     "acorn-walk": "^8.3.2",
     "cmd-ts": "^0.13.0",
     "common-tags": "^1.8.2",
+    "fs-extra": "^11.2.0",
     "graphql": "^16.8.1",
     "node-html-parser": "^6.1.13",
     "ts-pattern": "^5.1.1"
