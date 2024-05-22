@@ -4,11 +4,8 @@
 
 ## Установка
 
-> [!IMPORTANT]
-> Для работы требуется [Bun](https://bun.sh).
-
 ```sh
-bun install --global github:s21toolkit/s21introspector
+npm install --global @s21toolkit/introspector
 ```
 
 ## Использование
