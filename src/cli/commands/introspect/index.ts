@@ -69,6 +69,7 @@ async function fetchGqlOperations(har?: Har) {
 
 	const documentUrls = new Set([
 		Constants.Platform.BASE_URL,
+		Constants.Platform.PROJECT_MAP_URL,
 		// Constants.Platform.Admin.BASE_URL,
 		...loadedDocuments.keys(),
 	])
