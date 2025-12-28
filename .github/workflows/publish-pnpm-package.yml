@@ -2,7 +2,7 @@ name: Publish PNPM Package
 
 on:
   push:
-    tags: "^v*.*.*$"
+    tags: "v*.*.*"
 
 jobs:
   publish:
