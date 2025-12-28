@@ -1,6 +1,6 @@
 # s21introspector
 
-Утилита для интроспекции схемы GQL API платформы edu.21-school.ru.
+Утилита для интроспекции схемы GQL API платформы platform.21-school.ru.
 
 ## Установка
 
@@ -16,8 +16,8 @@ npm install --global @s21toolkit/introspector
 
 ```sh
 s21i introspect --token MyAccessToken
-s21i introspect $(s21i auth login@student.21-school.ru p4s5w0rd)
-s21i introspect $(s21i auth login@student.21-school.ru p4s5w0rd) --out-file schema.graphql
+s21i introspect $(s21i auth login p4s5w0rd)
+s21i introspect $(s21i auth login p4s5w0rd) --out-file schema.graphql
 s21i introspect $(s21 auth | s21i _) # Авторизация через s21cli
 ```
 

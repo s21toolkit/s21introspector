@@ -1,6 +1,6 @@
 export namespace Constants {
 	export namespace Platform {
-		export const BASE_URL = "https://edu.21-school.ru"
+		export const BASE_URL = "https://platform.21-school.ru"
 		export const PROJECT_MAP_URL = `${BASE_URL}/project-map`
 
 		export const GQL_URL = `${BASE_URL}/services/graphql`

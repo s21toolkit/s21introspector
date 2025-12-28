@@ -70,9 +70,9 @@ async function fetchGqlOperations(har?: Har) {
 	const documentUrls = new Set([
 		Constants.Platform.BASE_URL,
 		Constants.Platform.PROJECT_MAP_URL,
-		"https://edu.21-school.ru/project/26478/task", // First project in graph should be avaliable for everyone
-		"https://edu.21-school.ru/profile/eckhardy",
-		"https://edu.21-school.ru/my-profile",
+		"https://platform.21-school.ru/project/26478/task", // First project in graph should be avaliable for everyone
+		"https://platform.21-school.ru/profile/eckhardy",
+		"https://platform.21-school.ru/my-profile",
 		// Constants.Platform.Admin.BASE_URL,
 		...loadedDocuments.keys(),
 	])
