@@ -1,16 +1,4 @@
 import { resolve } from "node:path"
-import { PLATFORM_TOKEN } from "@/cli/arguments/platform-token"
-import { HarFile } from "@/cli/arguments/types/har-file"
-import { NewFile } from "@/cli/arguments/types/new-file"
-import { extractGqlLiterals } from "@/common/extract-gql-literals"
-import { fetchStaticProperties } from "@/common/fetch-static-properties"
-import { fetchTypeSchema } from "@/common/fetch-type-schema"
-import {
-	fetchText,
-	walkScriptsFromScript,
-	walkScriptsFromWebpage,
-} from "@/common/walk-scripts"
-import { Constants } from "@/constants"
 import type { Node } from "acorn"
 import {
 	boolean,
@@ -25,6 +13,18 @@ import { source } from "common-tags"
 import { outputFile } from "fs-extra"
 import { type DocumentNode, print as printAst, printSchema } from "graphql"
 import type { Har } from "har-format"
+import { PLATFORM_TOKEN } from "@/cli/arguments/platform-token"
+import { HarFile } from "@/cli/arguments/types/har-file"
+import { NewFile } from "@/cli/arguments/types/new-file"
+import { extractGqlLiterals } from "@/common/extract-gql-literals"
+import { fetchStaticProperties } from "@/common/fetch-static-properties"
+import { fetchTypeSchema } from "@/common/fetch-type-schema"
+import {
+	fetchText,
+	walkScriptsFromScript,
+	walkScriptsFromWebpage,
+} from "@/common/walk-scripts"
+import { Constants } from "@/constants"
 import { OperationRegistry } from "./operation-registry"
 
 function getHarTextEntries(har: Har, mimeType: string) {

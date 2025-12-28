@@ -5,7 +5,7 @@ import {
 } from "acorn"
 import { simple as walkProgram } from "acorn-walk"
 import { parse as parseHtmlDocument } from "node-html-parser"
-import { P, match } from "ts-pattern"
+import { match, P } from "ts-pattern"
 
 function resolveSource(base: string, url: string) {
 	return new URL(url, base).href

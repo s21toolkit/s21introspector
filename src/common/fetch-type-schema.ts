@@ -1,6 +1,6 @@
-import { Constants } from "@/constants"
 import { source } from "common-tags"
-import { type IntrospectionQuery, buildClientSchema } from "graphql"
+import { buildClientSchema, type IntrospectionQuery } from "graphql"
+import { Constants } from "@/constants"
 
 const INTROSPECTION_QUERY = source`
 	{

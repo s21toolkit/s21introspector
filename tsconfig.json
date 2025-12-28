@@ -5,7 +5,9 @@
 		"baseUrl": ".",
 		"paths": {
 			"@/*": ["src/*"]
-		}
+		},
+		"downlevelIteration": true,
+		"target": "es2024"
 	},
 	"exclude": ["build"]
 }

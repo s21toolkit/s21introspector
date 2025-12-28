@@ -1,10 +1,10 @@
 import { createHash } from "node:crypto"
 import { join } from "node:path"
+import { command, option, optional, positional, string } from "cmd-ts"
+import { outputFile } from "fs-extra"
 import { NewFile } from "@/cli/arguments/types/new-file"
 import { walkScriptsFromWebpage } from "@/common/walk-scripts"
 import { Constants } from "@/constants"
-import { command, option, optional, positional, string } from "cmd-ts"
-import { outputFile } from "fs-extra"
 
 function createRootScriptFilename(text: string) {
 	const hash = createHash("md5").update(text).digest("hex")

@@ -1,5 +1,5 @@
-import { fetchStaticProperties } from "@/common/fetch-static-properties"
 import { array, command, flag, multioption, string } from "cmd-ts"
+import { fetchStaticProperties } from "@/common/fetch-static-properties"
 
 export const staticCommand = command({
 	name: "static",

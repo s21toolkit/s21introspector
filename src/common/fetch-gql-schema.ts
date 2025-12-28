@@ -1,6 +1,6 @@
-import { Constants } from "@/constants"
 import { source } from "common-tags"
 import { printSchema } from "graphql"
+import { Constants } from "@/constants"
 import { extractGqlLiterals } from "./extract-gql-literals"
 import { fetchTypeSchema } from "./fetch-type-schema"
 import { walkScriptsFromWebpage } from "./walk-scripts"
